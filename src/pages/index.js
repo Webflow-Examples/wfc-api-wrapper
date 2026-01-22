@@ -35,6 +35,7 @@ export async function GET({ request, locals }) {
     const PIRATE_API_KEY = locals.runtime.env.PIRATE_API_KEY || process.env.PIRATE_API_KEY;
     const kv = locals.CACHE_KV;
     console.log('kv', kv);
+    
     if(!PIRATE_API_KEY) {
         throw('Missing env key');
     }
