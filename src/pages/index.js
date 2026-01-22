@@ -34,13 +34,21 @@ export async function GET({ request, locals }) {
 
     const PIRATE_API_KEY = locals.runtime.env.PIRATE_API_KEY || process.env.PIRATE_API_KEY;
     const kv = locals.runtime.env.CACHE_KV;
-    console.log('kv', kv);
 
     if(!PIRATE_API_KEY) {
         throw('Missing env key');
     }
 
-    let result = shapeData(await getForecast(30.471165, -91.147385, PIRATE_API_KEY));
+    let result = await kv.get('forecast');
+    if(!result) {
+        console.log('forcast not in cache');
+        result = shapeData(await getForecast(30.471165, -91.147385, PIRATE_API_KEY));
+        // cache for ten minutes
+        await kv.put('forecast', JSON.stringify(result), { expirationTtl: 600 });
+    } else {
+        console.log('forecast from cache');
+        result = JSON.parse(result);
+    }
 
     return new Response(
         JSON.stringify(result),
